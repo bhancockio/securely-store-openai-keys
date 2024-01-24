@@ -6,6 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "cockroachdb"
   url      = env("DATABASE_URL")
+}
+
+model UserEncryption {
+  id     String @id @default(uuid())
+  userId String @unique
+  key    String
 }

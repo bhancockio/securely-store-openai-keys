@@ -1,6 +1,7 @@
 import { decryptKey, encryptKey } from "@/lib/crypto-utils";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 function EncryptionContainer() {
   // State
@@ -8,9 +9,7 @@ function EncryptionContainer() {
   const [encrypting, setEncrypting] = useState(false);
   const [passphraseInput, setPassphraseInput] = useState("");
   const [openAIKeyInput, setOpenAIKeyInput] = useState("");
-  const [encryptedKey, setEncryptedKey] = useState(
-    "B8VxSmnJpL7jgqcoKrY9MNx2/+IsqLqpxLsWiEZlz5vyrY+dOFi9vDThMg/HsMCi50lM1709zWVGyF/XA/AyHbp/Qgz/qiroaUQYYTYzsKqSQtmrj8m0hXr5WsHpKvsejzaubsLTlQjuFyWujXCYhQaRDIBJM76WjdAJ72Q0n1P1ZCv0vph8cpmASOxEx8RUdS5WB74inwx8TP1u9sfD"
-  );
+  const [encryptedKey, setEncryptedKey] = useState("");
   const [decryptedKey, setDecryptedKey] = useState("");
 
   // Handle encryption
@@ -37,7 +36,28 @@ function EncryptionContainer() {
     }
   };
 
-  const handleSave = () => {};
+  const handleSave = async () => {
+    setSaving(true);
+
+    console.log("Saving key:", encryptedKey);
+    try {
+      const response = await axios.post("/api/user-encryption", {
+        data: 123,
+        encryptedKey,
+      });
+
+      if (response.status === 200) {
+        toast.success("Key saved successfully");
+      } else {
+        toast.error("Error saving key");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      toast.error("Error saving key");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="flex flex-col m-6 space-y-6 max-w-1/2">
@@ -66,7 +86,7 @@ function EncryptionContainer() {
         <button
           className="bg-green-500 rounded-md px-4 py-2 text-white hover:bg-green-700 disabled:text-green-900 disabled:hover:bg-green-500 disabled:cursor-not-allowed"
           disabled={!encryptedKey || saving}
-          onClick={handleSave}
+          onClick={() => handleSave()}
         >
           {saving ? "Saving..." : "Save"}
         </button>

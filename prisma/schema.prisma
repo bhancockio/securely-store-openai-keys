@@ -11,7 +11,8 @@ datasource db {
 }
 
 model UserEncryption {
-  id           String @id @default(uuid())
-  userId       String @unique
-  encryptedKey String
+  id         String @id @default(uuid())
+  userId     String @unique
+  passphrase String
+  salt       String
 }

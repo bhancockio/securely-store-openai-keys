@@ -4,11 +4,8 @@ import EncryptionContainer from "@/components/EncryptionContainer";
 
 export default function Home() {
   return (
-    <div className="flex flex-row m-8">
+    <div className=" flex flex-row mx-8 my-8 max-w-screen-lg w-full h-screen lg:mx-auto">
       <EncryptionContainer />
-      <div className="flex flex-col flex-grow m-6">
-        <h1 className="font-bold text-2xl">Chat</h1>
-      </div>
     </div>
   );
 }

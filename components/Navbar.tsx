@@ -34,7 +34,7 @@ function Navbar() {
           </Link>
         ))}
 
-        <div className="min-h-[94px] flex flex-row items-center">
+        <div className="flex flex-row items-center">
           {isSignedIn ? (
             <div className="flex flex-row gap-x-4 items-center">
               <UserButton />

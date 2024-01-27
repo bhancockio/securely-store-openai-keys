@@ -5,20 +5,15 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const user = await currentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  const body = await request.json();
+  const { salt, passphrase } = await request.json();
 
-  const { encryptedKey } = body;
+  console.log("salt, passphrase", salt, passphrase);
 
-  console.log("body", body);
-
-  if (!encryptedKey) {
-    return NextResponse.json(
-      { error: "Missing encrypted key" },
-      { status: 400 }
-    );
+  if (!salt || !passphrase) {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
   try {
@@ -29,15 +24,40 @@ export async function POST(request: Request) {
     if (userEncryptions.length > 0) {
       await prismadb.userEncryption.update({
         where: { userId: user.id },
-        data: { encryptedKey },
+        data: { salt, passphrase },
       });
     } else {
       await prismadb.userEncryption.create({
-        data: { encryptedKey, userId: user.id },
+        data: { salt, passphrase, userId: user.id },
       });
     }
 
     return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ message: "Database error" }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
+
+  try {
+    const userEncryption = await prismadb.userEncryption.findFirst({
+      where: { userId: user.id },
+    });
+
+    if (!userEncryption) {
+      return NextResponse.json({ salt: null, passphrase: null });
+    }
+
+    return NextResponse.json({
+      salt: userEncryption.salt,
+      passphrase: userEncryption.passphrase,
+    });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ message: "Database error" }, { status: 500 });
